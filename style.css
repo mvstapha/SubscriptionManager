@@ -25,6 +25,7 @@ body {
   color: var(--text);
   display: flex;
   flex-direction: column;
+  padding: 30px 100px;
 }
 
 /* layout */
