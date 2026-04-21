@@ -65,6 +65,28 @@ let ListOfSubscriptions = []
         return max  // return max and not return max["price"] -> to have the other data like name, date etc... and use it in innert html using max["the Data I Want"]
     }
 
+function MonthOrYear(){
+            if (BillingCycleInput.value == "Monthly"){
+                return "/Month"
+            }else{
+                return "/Year"
+            }
+        }
+function NextPaymentCalculate(){
+        let date = new Date(startDateInput.value)
+        if (BillingCycleInput.value == "Monthly"){
+                date.setMonth(date.getMonth() + 1)
+                
+        }
+        else{
+                date.setFullYear(date.getFullYear() + 1)
+        }
+        return `${date.getDate()} ${date.toLocaleString("en-US",{month:"short"})} ${date.getFullYear()}`;
+        // ${date.toLocaleString("en-US",{month:"sort"})} : take month(0,11) -> turn it into string in english -> use short form (or long or numeric)
+        // return date.toDateString(); // toDateString used to remove the time from output and keep only DAY MONTH YEAR --- "Sat Apr 10 2027 +removed: 01:00:00 GMT+0100 (GMT+01:00)+"
+
+        }
+
 function AddAPP (){
     submitSubscription.addEventListener("click",function(){
         if (appSelect.value == "" || priceInput.value == "" || BillingCycleInput.value == "" || startDateInput.value == "" ){
@@ -72,27 +94,7 @@ function AddAPP (){
         }
         else{
         EmptyInputError.style.display = "none"
-        function MonthOrYear(){
-            if (BillingCycleInput.value == "Monthly"){
-                return "/Month"
-            }else{
-                return "/Year"
-            }
-        }
-        function NextPaymentCalculate(){
-            let date = new Date(startDateInput.value)
-            if (BillingCycleInput.value == "Monthly"){
-                date.setMonth(date.getMonth() + 1)
-                
-            }
-            else{
-                date.setFullYear(date.getFullYear() + 1)
-            }
-            return `${date.getDate()} ${date.toLocaleString("en-US",{month:"short"})} ${date.getFullYear()}`;
-            // ${date.toLocaleString("en-US",{month:"sort"})} : take month(0,11) -> turn it into string in english -> use short form (or long or numeric)
-            // return date.toDateString(); // toDateString used to remove the time from output and keep only DAY MONTH YEAR --- "Sat Apr 10 2027 +removed: 01:00:00 GMT+0100 (GMT+01:00)+"
-
-        }
+        
         // Convert the HTML date input value from 10-08-2026 to 10 aug 2026
         let startDateNotFormatted = new Date(startDateInput.value)
         let formattedStartedDate = `${startDateNotFormatted.getDate()} ${startDateNotFormatted.toLocaleString("en-US", { month: "short" })} ${startDateNotFormatted.getFullYear()}`
@@ -128,7 +130,7 @@ function AddAPP (){
     
     <div class="next-payment date-soon">${NextPaymentCalculate()}</div>
 
-    <!--<div><button class="btn-edit">Edit</button></div>-->
+    <div><button class="btn-edit">Edit</button></div>
 
     <div><button class="btn-delete">Delete</button></div>
   </div>
@@ -146,7 +148,7 @@ function AddAPP (){
     BillingCycleInput.value = "Choose a billing cycle"
     startDateInput.value = ""
         
-        FullTable.appendChild(singleRow)
+    FullTable.appendChild(singleRow)
 
     totalSpending.textContent = `$${CalculateTotalSpending()}`
     activeSubscriptions.textContent = `${calculateActiveSubs()}`
@@ -265,8 +267,61 @@ function UpdateApp (){
         priceInput.value = "";
         BillingCycleInput.value = "Choose a billing cycle";
         startDateInput.value = "";
+        FullTable.innerHTML = "";
+        
+        for (let sub of ListOfSubscriptions){
+        function NextPaymentCalculate(){
+        let date = new Date(sub["startDate"])
+        if (sub["billing-cycle"] == "Monthly"){
+                date.setMonth(date.getMonth() + 1)
+                
+        }
+        else{
+                date.setFullYear(date.getFullYear() + 1)
+        }
+        return `${date.getDate()} ${date.toLocaleString("en-US",{month:"short"})} ${date.getFullYear()}`;
+        // ${date.toLocaleString("en-US",{month:"sort"})} : take month(0,11) -> turn it into string in english -> use short form (or long or numeric)
+        // return date.toDateString(); // toDateString used to remove the time from output and keep only DAY MONTH YEAR --- "Sat Apr 10 2027 +removed: 01:00:00 GMT+0100 (GMT+01:00)+"
 
-        location.reload();
+        }
+        let startDateNotFormatted = new Date(sub["startDate"])
+        let formattedStartedDate = `${startDateNotFormatted.getDate()} ${startDateNotFormatted.toLocaleString("en-US", { month: "short" })} ${startDateNotFormatted.getFullYear()}`
+        
+        let singleRow = document.createElement("div")
+        singleRow.classList.add("table-row")
+        singleRow.innerHTML = `
+        <div class="id-cell">${sub["id"]}</div>
+            <div class="app-cell">
+      <div class="app-icon"><img class="iconApp" src="${sub["app"]+".png"}" alt=""></div>
+      <div>
+        <div class="app-name">${sub["app"]}</div>
+      </div>
+    </div>
+
+    <div class="price-cell">
+      <span class="price">$${sub["price"]}</span><span class="unit">${MonthOrYear()}</span>
+    </div>
+
+    <div><span class="cycle-pill cycle-monthly">${sub["billing-cycle"]}</span></div>
+
+    <div class="date-cell">${formattedStartedDate}</div>
+    
+    <div class="next-payment date-soon">${NextPaymentCalculate()}</div>
+
+    <div><button class="btn-edit">Edit</button></div>
+
+    <div><button class="btn-delete">Delete</button></div>
+  </div>
+        `;
+        console.log(ListOfSubscriptions)
+    FullTable.appendChild(singleRow)
+
+    totalSpending.textContent = `$${CalculateTotalSpending()}`
+    activeSubscriptions.textContent = `${calculateActiveSubs()}`
+    mostExpensiveApp.textContent = `$${mostExpensive()["price"]}`
+    mostExpensiveName.textContent = `${mostExpensive()["app"]} Subscription`
+
+        }
     });
 }
 
