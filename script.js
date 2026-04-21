@@ -267,7 +267,18 @@ function UpdateApp (){
         priceInput.value = "";
         BillingCycleInput.value = "Choose a billing cycle";
         startDateInput.value = "";
-        FullTable.innerHTML = "";
+        FullTable.innerHTML = `
+            <div class="table-head">
+                <div>ID</div>
+                <div>App</div>
+                <div>Price</div>
+                <div>Billing Cycle</div>
+                <div>Start Date</div>
+                <div>Next Payment</div>
+                <div>Edit</div>
+                <div>Delete</div>
+            </div>
+        `;
         
         for (let sub of ListOfSubscriptions){
         function NextPaymentCalculate(){
